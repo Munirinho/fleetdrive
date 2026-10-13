@@ -11,3 +11,5 @@ services:
     envVars:
       - key: MONGODB_URI
         sync: false # set to your Atlas connection string in the Render dashboard
+      - key: API_KEY
+        generateValue: true # Render creates a random secret; same value must be set as VITE_API_KEY for the frontend

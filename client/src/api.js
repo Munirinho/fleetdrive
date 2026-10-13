@@ -1,8 +1,9 @@
 // All calls go to <VITE_API_URL>/api/... ; empty in dev (vite proxies /api to :5000).
 const BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '')
+const KEY = import.meta.env.VITE_API_KEY || ''
 async function req(path, opts = {}) {
   const r = await fetch(BASE + path, {
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...(KEY ? { 'x-api-key': KEY } : {}) },
     ...opts,
   })
   let body = null
