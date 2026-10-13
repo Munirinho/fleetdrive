@@ -1,0 +1,13 @@
+# Render blueprint for the FleetDrive API (Node + Express + Mongoose).
+# Create a free MongoDB Atlas cluster, then: New > Blueprint > connect this repo.
+services:
+  - type: web
+    name: fleetdrive-api
+    runtime: node
+    rootDir: server
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: MONGODB_URI
+        sync: false # set to your Atlas connection string in the Render dashboard
