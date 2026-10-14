@@ -19,17 +19,19 @@ const PRETRIP = [
 ]
 
 const TABS = [
-  { id: 'dash', t: 'Dashboard', s: 'Fleet at a glance' },
-  { id: 'signin', t: 'Sign-In / Out', s: 'Checkout & return' },
-  { id: 'trips', t: 'Trip Log', s: 'Every movement' },
-  { id: 'time', t: 'Time Log', s: 'Waiting, breaks, delays' },
-  { id: 'fuel', t: 'Fuel', s: 'Uplifts & consumption' },
-  { id: 'maint', t: 'Maintenance', s: 'Service register' },
-  { id: 'incidents', t: 'Exceptions', s: 'Incidents & defects' },
-  { id: 'drivers', t: 'Drivers', s: 'Profiles & licences' },
-  { id: 'vehicles', t: 'Vehicles', s: 'Fleet register' },
-  { id: 'report', t: 'Daily Report', s: 'Management summary' },
+  { id: 'dash', t: 'Home', s: 'Today at a glance', icon: '🏠', grp: 'Daily work' },
+  { id: 'signin', t: 'Sign In & Return', s: 'Start and end of day', icon: '🔑', grp: 'Daily work' },
+  { id: 'trips', t: 'Trips', s: 'Log every journey', icon: '🛣️', grp: 'Daily work' },
+  { id: 'time', t: 'Time Log', s: 'Waiting, breaks, delays', icon: '⏱️', grp: 'Daily work' },
+  { id: 'fuel', t: 'Fuel', s: 'Refuels & consumption', icon: '⛽', grp: 'Daily work' },
+  { id: 'maint', t: 'Maintenance', s: 'Services & repairs', icon: '🛠️', grp: 'Office' },
+  { id: 'incidents', t: 'Incidents', s: 'Problems & reports', icon: '⚠️', grp: 'Office' },
+  { id: 'report', t: 'Daily Report', s: 'Summary for management', icon: '📊', grp: 'Office' },
+  { id: 'drivers', t: 'Drivers', s: 'Driver records', icon: '👤', grp: 'Setup' },
+  { id: 'vehicles', t: 'Vehicles', s: 'Vehicle records', icon: '🚛', grp: 'Setup' },
 ]
+
+const NAV_GROUPS = ['Daily work', 'Office', 'Setup']
 
 const TIME_EVENTS = [
   'Sign-in',
@@ -104,7 +106,7 @@ function Tbl({ headers, children }) {
           {children || (
             <tr>
               <td colSpan={headers.length} className="mut">
-                No records.
+                Nothing here yet — add the first entry using the form above.
               </td>
             </tr>
           )}
@@ -209,8 +211,8 @@ function Dashboard({ date }) {
 
   return (
     <div>
-      <h2>Fleet Dashboard — {date}</h2>
-      <p className="mut">Vehicles in operation | Drivers active | KM | Fuel | Cost | Issues (§10)</p>
+      <h2>Today at SAC (K) Ltd — {date}</h2>
+      <p className="mut">Your whole fleet today: vehicles out, kilometres, fuel, costs and problems.</p>
       <div className="grid g4">
         {cards.map(([t, v, s]) => (
           <div className="card" key={t}>
@@ -325,8 +327,8 @@ function SigninView({ date, drivers, vehicles, refreshFleet }) {
   return (
     <div>
       <div className="sec-title">
-        <h2>Driver Sign-In / Vehicle Check-Out — {date}</h2>
-        <span className="mut">start-of-day · end-of-day return</span>
+        <h2>Driver Sign In & Vehicle Return — {date}</h2>
+        <span className="mut">Morning check-out at the top, end-of-day return below</span>
       </div>
       <Err e={err} />
       <Card title="1 · Morning sign-in + pre-trip inspection">
@@ -471,8 +473,8 @@ function TripsView({ date, drivers, vehicles }) {
 
   return (
     <div>
-      <h2>Trip / Movement Log — {date}</h2>
-      <p className="mut">Every trip gets a separate record: who → which vehicle → when → from → to → why → km</p>
+      <h2>Trips — {date}</h2>
+      <p className="mut">Log each journey separately: who drove, which vehicle, from where to where, and why.</p>
       <Err e={err} />
       <Card>
         <div className="formgrid">
@@ -547,8 +549,8 @@ function TimeView({ date, drivers }) {
 
   return (
     <div>
-      <h2>Driver Time Log — {date}</h2>
-      <p className="mut">Sign-in, inspection, departures, arrivals, waiting, breaks, refuelling, repair, sign-out</p>
+      <h2>Time Log — {date}</h2>
+      <p className="mut">Record the key moments of the day: departures, arrivals, waiting, breaks and sign-out.</p>
       <Err e={err} />
       <Card>
         <div className="formgrid">
@@ -629,8 +631,8 @@ function FuelView({ date, drivers, vehicles }) {
 
   return (
     <div>
-      <h2>Fuel Usage &amp; Uplifts — {date}</h2>
-      <p className="mut">Distance = closing − opening · Consumption = km ÷ litres</p>
+      <h2>Fuel — {date}</h2>
+      <p className="mut">Record every refuel. The system works out kilometres per litre automatically.</p>
       <Err e={err} />
       <Card>
         <div className="formgrid">
@@ -715,8 +717,8 @@ function MaintView({ vehicles }) {
 
   return (
     <div>
-      <h2>Vehicle Maintenance Register</h2>
-      <p className="mut">Service intervals, next service date/mileage, tyres, oil, brakes, battery, insurance</p>
+      <h2>Maintenance</h2>
+      <p className="mut">Services, repairs and costs for every vehicle — never miss a service again.</p>
       <Err e={err} />
       <Card>
         <div className="formgrid">
@@ -821,8 +823,8 @@ function ExceptionsView({ date, drivers, vehicles }) {
 
   return (
     <div>
-      <h2>Exceptions / Incident Report</h2>
-      <p className="mut">Accidents, breakdowns, unauthorized trips, late returns, damage, overdue service…</p>
+      <h2>Incidents</h2>
+      <p className="mut">Accidents, breakdowns, damage, late returns — anything unusual goes here.</p>
       <Err e={err} />
       <Card>
         <div className="formgrid">
@@ -927,6 +929,7 @@ function DriversView({ drivers, reload }) {
   return (
     <div>
       <h2>Drivers</h2>
+      <p className="mut">Everyone who drives for SAC (K) Ltd, with licence and contact details.</p>
       <Err e={err} />
       <Card title={editing ? 'Edit driver' : 'Add driver'}>
         <div className="formgrid">
@@ -1010,6 +1013,7 @@ function VehiclesView({ vehicles, reload }) {
   return (
     <div>
       <h2>Vehicles</h2>
+      <p className="mut">Every company vehicle, its mileage, fuel type and next service.</p>
       <Err e={err} />
       <Card title={editing ? `Edit ${editing.reg}` : 'Add vehicle'}>
         <div className="formgrid">
@@ -1104,11 +1108,11 @@ function ReportView({ date }) {
   return (
     <div>
       <div className="print-head">
-        <h1>FleetDrive — Daily Fleet Summary</h1>
+        <h1>SAC (K) Ltd Drivers — Daily Fleet Summary</h1>
         <p>Date: {date}</p>
       </div>
       <div className="sec-title no-print">
-        <h2>Daily Vehicle Report — {date}</h2>
+        <h2>Daily Report — {date}</h2>
         <div style={{ display: 'flex', gap: 8 }}>
           <button className="btn" onClick={() => window.print()}>🖨 Print</button>
         </div>
@@ -1159,6 +1163,7 @@ function ReportView({ date }) {
 export default function App() {
   const [tab, setTab] = useState('dash')
   const [date, setDate] = useState(todayStr())
+  const [menuOpen, setMenuOpen] = useState(false)
   const drv = useList('/api/drivers')
   const veh = useList('/api/vehicles')
   const [health, setHealth] = useState(null)
@@ -1172,33 +1177,52 @@ export default function App() {
     veh.reload()
   }
 
+  const go = (id) => {
+    setTab(id)
+    setMenuOpen(false)
+  }
+
   return (
     <>
       <header className="topbar">
         <div className="brand">
+          <button className="btn ghost menu-btn" onClick={() => setMenuOpen((o) => !o)} title="Menu">
+            ☰
+          </button>
           <span className="logo">🚛</span>
           <div>
-            <h1>FleetDrive</h1>
-            <p>Driver → Vehicle → Trip → Fuel → Maintenance → Report</p>
+            <h1>SAC (K) Ltd Drivers</h1>
+            <p>Daily driver &amp; vehicle management</p>
           </div>
         </div>
         <div className="top-actions">
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} title="Working date" />
-          <button className="btn primary" onClick={() => setTab('signin')}>+ Sign In Driver</button>
+          <label className="day-pick">
+            Working day
+            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} title="Working day" />
+          </label>
+          <button className="btn primary" onClick={() => go('signin')}>+ Sign In Driver</button>
           {health && !health.ok && <span className="badge b-red">API offline</span>}
         </div>
       </header>
       <div className="layout">
-        <nav className="sidebar">
-          {TABS.map((t) => (
-            <button key={t.id} className={`navbtn ${tab === t.id ? 'active' : ''}`} onClick={() => setTab(t.id)}>
-              {t.t}
-              <small>{t.s}</small>
-            </button>
+        <nav className={`sidebar ${menuOpen ? 'open' : ''}`}>
+          {NAV_GROUPS.map((g) => (
+            <div key={g}>
+              <div className="navgrp">{g}</div>
+              {TABS.filter((t) => t.grp === g).map((t) => (
+                <button key={t.id} className={`navbtn ${tab === t.id ? 'active' : ''}`} onClick={() => go(t.id)}>
+                  <span className="ico">{t.icon}</span>
+                  <span>
+                    {t.t}
+                    <small>{t.s}</small>
+                  </span>
+                </button>
+              ))}
+            </div>
           ))}
           {(drv.error || veh.error) && (
             <div className="alert red" style={{ marginTop: 8 }}>
-              Failed to load fleet data.
+              Could not load drivers &amp; vehicles. Check your connection.
               <button className="btn ghost sm" onClick={refreshFleet}>Retry</button>
             </div>
           )}
