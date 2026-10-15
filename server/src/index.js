@@ -5,10 +5,10 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
-const mongoose = require('mongoose');
 const models = require('./models');
 const { crudRouter } = require('./crud');
 const { buildReport } = require('./report');
+const { connectDb } = require('./db');
 
 const PORT = Number(process.env.PORT) || 5000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/fleetdrive';
@@ -16,6 +16,7 @@ const API_KEY = process.env.API_KEY || '';
 
 const app = express();
 app.disable('x-powered-by');
+app.set('trust proxy', 1); // correct client IPs behind Vercel's proxy (rate limiter)
 app.use(helmet());
 app.use(cors());
 app.use(express.json({ limit: '5mb' }));
@@ -35,6 +36,17 @@ function requireKey(req, res, next) {
 
 app.get('/api/health', (req, res) => res.json({ ok: true, secured: API_KEY !== '' }));
 app.use('/api', requireKey);
+
+// Lazy DB connection: only authenticated requests reach here. Cached, so it is
+// cheap on warm instances and keeps /api/health fast on cold starts.
+app.use('/api', async (req, res, next) => {
+  try {
+    await connectDb(MONGODB_URI);
+    next();
+  } catch (e) {
+    res.status(503).json({ error: 'database unavailable' });
+  }
+});
 
 app.use('/api/drivers', crudRouter(models.Driver, { sort: { name: 1 } }));
 app.use('/api/vehicles', crudRouter(models.Vehicle, { sort: { reg: 1 } }));
@@ -64,7 +76,7 @@ app.get('/api/report', async (req, res) => {
 
 async function main() {
   if (!API_KEY) console.warn('WARNING: API_KEY is not set — the API is OPEN. Set API_KEY in .env for production.');
-  await mongoose.connect(MONGODB_URI);
+  await connectDb(MONGODB_URI);
   app.listen(PORT, () => console.log(`FleetDrive API listening on http://localhost:${PORT}`));
 }
 
