@@ -1,5 +1,11 @@
 'use strict';
-// Vercel entry point. Vercel auto-detects an Express app exported from a
-// recognized file at the project root (`app.js`). Set the Vercel project's
-// Root Directory to `server`.
-module.exports = require('./src/index');
+// Vercel entry point. Normalizes any function-path prefix Vercel may introduce
+// via routes, then delegates to the Express app. No-op when the URL is already
+// the original path.
+const app = require('./src/index');
+
+module.exports = (req, res) => {
+  const url = req.url || '/';
+  req.url = url.replace(/^(?:\/server)?\/app(?=\/|$)/, '') || '/';
+  return app(req, res);
+};
